@@ -182,7 +182,7 @@ export default {
 
         // Requête POST pour soumettre les données au backend
         const response = await axios.post(
-          'http://localhost:3000/api/submit-measurements',
+          'http://192.168.219.11:3301/api/submit-measurements',
           dataToSubmit
         )
 

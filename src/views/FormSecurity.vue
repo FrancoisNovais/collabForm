@@ -196,6 +196,13 @@
 
     <!-- Section de l'historique des 7 derniers jours -->
     <div class="history">
+      <!-- Bloc pour afficher les données si "coupure" est détecté dans la description -->
+      <div v-if="isCoupureDetected" class="coupure-data">
+        <h3>Action(s) proposée(s):</h3>
+        <p>Alertez un secouriste ou rendez-vous à l'infirmerie.</p>
+        <p>Porter les EPI.</p>
+        <button @click="validateCoupureAction">Valider l'action</button>
+      </div>
       <h2>Historique des 7 derniers jours :</h2>
       <ul>
         <!-- Liste des entrées de l'historique -->
@@ -257,9 +264,17 @@ export default {
         time: ''
       },
       canvasContext: [null, null],
-      isDrawing: [false, false]
+      isDrawing: [false, false],
+      isCoupureDetected: false
     }
   },
+  watch: {
+    // Watcher pour surveiller la description et détecter le mot "coupure"
+    'formDataSecurity.description'(newValue) {
+      this.isCoupureDetected = newValue.toLowerCase().includes('coupure')
+    }
+  },
+
   mounted() {
     this.loadJsonData()
     this.setCurrentDateTime()
@@ -282,7 +297,7 @@ export default {
     // Charger les données depuis le backend
     async loadJsonData() {
       try {
-        const { data } = await axios.get('http://localhost:3000/api/history')
+        const { data } = await axios.get('http://192.168.219.11:3301/api/history')
         this.last7DaysDataSecurity = data
         this.formDataSecurity.numero = this.last7DaysDataSecurity.length + 1
       } catch (error) {
@@ -328,7 +343,7 @@ export default {
         formData.append('formDataSecurity', JSON.stringify(this.formDataSecurity))
         formData.append('sortingData', JSON.stringify(this.sortingData))
 
-        const { data } = await axios.post('http://localhost:3000/api/form-submit', formData, {
+        const { data } = await axios.post('http://192.168.219.11:3301/api/form-submit', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
 
@@ -482,6 +497,9 @@ export default {
     selectHistoryItem(index) {
       const item = this.last7DaysDataSecurity[index]
       this.formDataSecurity.similarIssues = ['yes', item.numero]
+    },
+    validateCoupureAction() {
+      this.isCoupureDetected = false
     }
   }
 }
@@ -766,5 +784,46 @@ button:hover {
 /* Style spécifique pour la description de l'entrée */
 .entry-description {
   font-weight: bold;
+}
+
+/* Style pour le bloc coupure-data */
+.coupure-data {
+  background-color: #f8d7da; /* Rouge clair pour signaler une alerte ou un problème */
+  border: 1px solid #f5c6cb; /* Bordure rouge clair */
+  border-radius: 5px; /* Bords arrondis */
+  padding: 15px; /* Espacement interne */
+  margin-bottom: 20px; /* Espacement avec les autres sections */
+  color: #721c24; /* Couleur de texte rouge foncé */
+}
+
+/* Style pour le titre du bloc coupure */
+.coupure-data h3 {
+  margin-bottom: 10px;
+  font-size: 1.5em;
+  color: #721c24; /* Couleur rouge foncé */
+  font-weight: bold;
+}
+
+/* Style pour le texte du bloc coupure */
+.coupure-data p {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+/* Style pour la liste des données */
+.coupure-data ul {
+  list-style-type: none; /* Supprimer les puces */
+  padding-left: 0;
+}
+
+/* Style pour les éléments de la liste */
+.coupure-data ul li {
+  font-size: 1.1em;
+  padding: 5px 0;
+  border-bottom: 1px solid #f5c6cb; /* Ligne de séparation entre les éléments */
+}
+
+.coupure-data ul li:last-child {
+  border-bottom: none; /* Supprimer la ligne sous le dernier élément */
 }
 </style>

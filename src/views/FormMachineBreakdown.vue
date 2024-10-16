@@ -280,7 +280,7 @@ export default {
 
     async loadJsonData() {
       try {
-        const { data } = await axios.get('http://localhost:3000/api/machine-breakdown-history')
+        const { data } = await axios.get('http://192.168.219.11:3301/api/machine-breakdown-history')
         this.last7DaysDataMachineBreakdown = data
         this.formDataMachineBreakdown.numero = this.last7DaysDataMachineBreakdown.length + 1
       } catch (error) {
@@ -322,7 +322,7 @@ export default {
         formData.append('sortingData', JSON.stringify(this.sortingData))
 
         const { data } = await axios.post(
-          'http://localhost:3000/api/machine-breakdown-submit',
+          'http://192.168.219.11:3301/api/machine-breakdown-submit',
           formData,
           {
             headers: { 'Content-Type': 'multipart/form-data' }
